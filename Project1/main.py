@@ -16,17 +16,18 @@ def next(buffer: list, lineNumber: int):
         elif buffer[i] in ALPHA:
             position = i+1
             string, i, kind = readAlpha(buffer, i)
-            print(f"Line: {lineNumber}, Char: {position}, Kind: {kind}, {string}")
-        elif buffer[i] in OPERATORS or buffer[i] in OTHER or buffer[i] == "!":
+        elif buffer[i] in OPERATORS or buffer[i] in OTHER or checkExclamationPoint(buffer, i):
             position = i+1
             string, i, kind = readOp(buffer, i)
-            print(f"Line: {lineNumber}, Char: {position}, Kind: {kind}, {string}")
         elif buffer[i] in DIGITS:
             position = i+1
             string, i, kind = readDigits(buffer, i)
-            print(f"Line: {lineNumber}, Char: {position}, Kind: {kind}, {string}")
         else:
-            i += 1
+            raise RuntimeError(f"ERROR: Invalid token at Line: {lineNumber}, Position: {position}, Character: {buffer[i]}")
+        print(f"Line: {lineNumber}, Char: {position}, Kind: {kind}, {string}")
+
+def checkExclamationPoint(buffer: list, curr_index: int):
+    return buffer[curr_index] == "!" and curr_index+1 < len(buffer) and buffer[curr_index+1] == "="
 
 def readDigits(buffer: list, curr_index: int):
     token = buffer[curr_index]
@@ -53,12 +54,6 @@ def readOp(buffer: list, curr_index: int):
     elif token == ">" and buffer[curr_index+1] == "=": # Greater than or equal to
         token += ">="
         curr_index += 1
-    elif token == "!":
-        if buffer[curr_index+1] == "=": # Not equal
-            token = "!="
-            curr_index += 1
-        else:
-            raise RuntimeError("Invalid Token")
 
     return token, curr_index+1, kindOfToken(token)
 
@@ -71,27 +66,13 @@ def readAlpha(buffer: list, curr_index: int):
     if buffer[curr_index] not in ALPHA:
         raise RuntimeError("First character must be a letter")
     token = ""
-    kind = ""
-    charCount = curr_index
-    while curr_index < len(buffer):
+    while curr_index < len(buffer) and buffer[curr_index] in ALPHA or buffer[curr_index] in DIGITS or buffer[curr_index] == "_" :
         token += buffer[curr_index]
         curr_index += 1
-        charCount += 1
-        if buffer[curr_index] in WHITESPACE:
-            curr_index = ignoreWhiteSpace(buffer, curr_index)
-            kind = kindOfToken(token)
-            return token, curr_index, kind
-        if buffer[curr_index] in OPERATORS or buffer[curr_index] in OTHER:
-            kind = kindOfToken(token)
-            return token, curr_index, kind
-        if not buffer[curr_index] in ALPHA and not buffer[curr_index] == '_' and not buffer[curr_index] in DIGITS:
-            print(f"ERROR | curr_index: {curr_index} | buffer char: {buffer[curr_index]}")
-            raise RuntimeError("Invalid Token")
-        
+    return token, curr_index, kindOfToken(token)
 
 def ignoreWhiteSpace(buffer: list, curr_index: int):
     while curr_index < len(buffer) and buffer[curr_index] in WHITESPACE:
-        # print(f"Ignoring {buffer[curr_index]}")
         curr_index += 1
     return curr_index
 
@@ -115,7 +96,7 @@ def main():
                 lineCount += 1
                 lineArr = [char for char in line]
                 next(lineArr, lineCount)
-        except:
-            print(f"Invlaid token at lineNumber: {lineCount}")
+        except RuntimeError as err:
+            print(err)
 if __name__ == "__main__":
     main()
