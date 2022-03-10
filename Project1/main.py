@@ -1,5 +1,7 @@
+import os
+
 OPERATORS = ["<", "=<", "=", "!=", ">=", ">", "+", "-", "*", "/"]
-OTHER = ["(", ")", ":", ";", "//", ":="]
+OTHER = ["(", ")", ":", ";", ":="]
 KEY_WORDS = ["program", "end", "bool", "int", "while", "do", "od", "print", "false", "true", "not", "and", "or", "if", "fi", "then", "else"]
 ALPHA = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
 WHITESPACE = [" ", "\n"]
@@ -13,6 +15,9 @@ def next(buffer: list, lineNumber: int):
         if buffer[i] in WHITESPACE:
             i = ignoreWhiteSpace(buffer, i)
             continue
+        elif isComment(buffer, i):
+            i = ignoreComments(buffer, i+2)
+            continue
         elif buffer[i] in ALPHA:
             position = i+1
             string, i, kind = readAlpha(buffer, i)
@@ -25,6 +30,9 @@ def next(buffer: list, lineNumber: int):
         else:
             raise RuntimeError(f"ERROR: Invalid token at Line: {lineNumber}, Position: {position}, Character: {buffer[i]}")
         print(f"Line: {lineNumber}, Char: {position}, Kind: {kind}, {string}")
+
+def isComment(buffer: list, curr_index: int):
+    return buffer[curr_index] == "/" and curr_index+1 < len(buffer) and buffer[curr_index+1] == "/"
 
 def checkExclamationPoint(buffer: list, curr_index: int):
     return buffer[curr_index] == "!" and curr_index+1 < len(buffer) and buffer[curr_index+1] == "="
@@ -40,20 +48,18 @@ def readDigits(buffer: list, curr_index: int):
 
 def readOp(buffer: list, curr_index: int):
     token = buffer[curr_index]
-
+    curr_index += 1
     if not (curr_index+1 < len(buffer)):
         return token, curr_index+1, kindOfToken(buffer[curr_index])
 
-    if token == "/" and buffer[curr_index+1] == "/": # Comments
-        token += "/"
-        curr_index = ignoreComments(buffer, curr_index+1)
-        return token, curr_index, kindOfToken(token)
-    elif token == ":" and buffer[curr_index+1] == "=": # assignment op 
+    if token == ":" and buffer[curr_index] == "=": # assignment op 
         token += "="
-        curr_index += 1
-    elif token == ">" and buffer[curr_index+1] == "=": # Greater than or equal to
-        token += ">="
-        curr_index += 1
+    elif token == ">" and buffer[curr_index] == "=": # Greater than or equal to
+        token += "="
+    elif token == "=" and buffer[curr_index] == "<": # Less than or equal to 
+        token += "<"
+    elif token == "!" and buffer[curr_index] == "=": # Not equal to
+        token += "="
 
     return token, curr_index+1, kindOfToken(token)
 
@@ -90,7 +96,7 @@ def kindOfToken(token:str):
 
 def main():
     lineCount = 0
-    with open("./examples/nonsense.txt") as file:
+    with open(f"./examples/nonsense.txt") as file:
         try:
             for line in file.readlines():
                 lineCount += 1
@@ -99,4 +105,7 @@ def main():
         except RuntimeError as err:
             print(err)
 if __name__ == "__main__":
+    # for file in os.listdir("./examples"):
+    #     main(file)
+    #     print("NEXT FILE \n\n\n")
     main()
