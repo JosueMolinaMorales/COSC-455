@@ -26,17 +26,18 @@ class LexAnalyzer:
         return self.positionToken
         
     def next(self):
-        self.__reset()
+        self.__reset() # Reset token and kind
+
+        # Check to see if there is whitespace or a comment
+        self.curr_index = ignoreWhiteSpace(self.buffer, self.curr_index)
+        self.curr_index = ignoreComments(self.buffer, self.curr_index)
+        
+        # Check to see if the buffer is at the end
         self.__checkBuffer()
 
-        if self.buffer[self.curr_index] in WHITESPACE:
-            self.curr_index = ignoreWhiteSpace(self.buffer, self.curr_index)
-            self.__checkBuffer()
-        elif isComment(self.buffer, self.curr_index):
-            self.curr_index = ignoreComments(self.buffer, self.curr_index+2)
-            self.__checkBuffer()
         if len(self.buffer) == 0: # End of Text has been reached
             return self.kindToken
+            
         if self.buffer[self.curr_index] in ALPHA:
             self.positionToken = self.curr_index+1
             self.token, self.curr_index, self.kindToken = readAlpha(self.buffer, self.curr_index)
@@ -72,7 +73,7 @@ class LexAnalyzer:
         return self.kindToken
     
 def isComment(buffer: list, curr_index: int):
-    return buffer[curr_index] == "/" and curr_index+1 < len(buffer) and buffer[curr_index+1] == "/"
+    return curr_index < len(buffer) and buffer[curr_index] == "/" and curr_index+1 < len(buffer) and buffer[curr_index+1] == "/"
 
 def checkExclamationPoint(buffer: list, curr_index: int):
     return buffer[curr_index] == "!" and curr_index+1 < len(buffer) and buffer[curr_index+1] == "="
@@ -89,8 +90,8 @@ def readDigits(buffer: list, curr_index: int):
 def readOp(buffer: list, curr_index: int):
     token = buffer[curr_index]
     curr_index += 1
-    if not (curr_index+1 < len(buffer)):
-        return token, curr_index+1, kindOfToken(token)
+    if not (curr_index < len(buffer)):
+        return token, curr_index, kindOfToken(token)
 
     if token == ":" and buffer[curr_index] == "=": # assignment op 
         token += "="
@@ -101,7 +102,10 @@ def readOp(buffer: list, curr_index: int):
     elif token == "!" and buffer[curr_index] == "=": # Not equal to
         token += "="
 
-    return token, curr_index+1, kindOfToken(token)
+    if len(token) > 1:
+        return token, curr_index+1, kindOfToken(token)
+    
+    return token, curr_index, kindOfToken(token)
 
         
 def readAlpha(buffer: list, curr_index: int):
@@ -123,9 +127,10 @@ def ignoreWhiteSpace(buffer: list, curr_index: int):
     return curr_index
 
 def ignoreComments(buffer: list, curr_index: int):
-    while curr_index < len(buffer) and buffer[curr_index] != "\n":
-        curr_index += 1
-    return curr_index
+    if isComment(buffer, curr_index):
+        return len(buffer)
+    else:
+        return curr_index
 
 
 def kindOfToken(token:str):
