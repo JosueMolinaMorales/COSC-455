@@ -1,14 +1,15 @@
-from main import *
+from Lexeme import LexAnalyzer
+lex = LexAnalyzer("examples\if.txt")
 
-# Test Cases for kind of token
-tokens = [("program","program"), ("Program", "ID"), ("3400", "NUM"), ("0", "NUM"), (";", ";"), ("myProgram", "ID")]
-for test, correct in tokens:
-    print(f"Testing: {test}. Correct: {correct}. Valid? {correct == kindOfToken(test)}")
+try:
+    lex.next()
+    while lex.kind() != "End-of-text":
+        print(lex.position(), lex.kind(), lex.value())
+        lex.next()
+    print("End of text has been reached")
+except RuntimeError as err:
+    print(err)
 
-simplePrograms = [
-    "program test: \n" +
-    "   int a := b"
-]
 
-next()
+
 
