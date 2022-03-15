@@ -1,5 +1,5 @@
 from Lexeme import LexAnalyzer
-lex = LexAnalyzer("examples\\ab2.txt")
+lex = LexAnalyzer("examples\\nonsense.txt")
 
 try:
     lex.next()
