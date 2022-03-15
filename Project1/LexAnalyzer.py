@@ -5,7 +5,7 @@ ALPHA = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', '
 WHITESPACE = [" ", "\n"]
 DIGITS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
 
-class LexAnalyzer:
+class Tokenizer:
     def __init__(self, fileName: str):
         self.token = "" # Store the token
         self.kindToken = "" # Store the kind of token
@@ -64,8 +64,6 @@ class LexAnalyzer:
         else:
             raise RuntimeError(f"ERROR: Invalid token at Line: {self.lineCount}, Position: {self.positionToken}, Character: {self.buffer[self.curr_index]}")
 
-        #print(f"Line: {self.lineCount}, Char: {self.positionToken}, Kind: {self.kindToken}, {self.token}")
-        return self.token
 
     def __checkBuffer__(self):
         '''
@@ -111,9 +109,7 @@ def checkExclamationPoint(buffer: list, curr_index: int):
     return buffer[curr_index] == "!" and curr_index+1 < len(buffer) and buffer[curr_index+1] == "="
 
 def readDigits(buffer: list, curr_index: int):
-    '''
-    Read Digits
-    '''
+    ''' Read Digits '''
     token = buffer[curr_index]
     curr_index += 1
     while curr_index < len(buffer) and buffer[curr_index] in DIGITS:
@@ -123,9 +119,7 @@ def readDigits(buffer: list, curr_index: int):
     
 
 def readOp(buffer: list, curr_index: int):
-    '''
-    Read operators
-    '''
+    ''' Read operators '''
     # store the first token (That has already been checked to be an operator)
     token = buffer[curr_index]
     curr_index += 1
@@ -151,10 +145,8 @@ def readOp(buffer: list, curr_index: int):
 
         
 def readAlpha(buffer: list, curr_index: int):
-    '''
-    Allowed characters in an ID/Keyword are ALPHA, KEYWORKS, "_" and DIGIT
-    MUST BEGIN WITH A LETTER
-    '''
+    ''' Allowed characters in an ID/Keyword are ALPHA, KEYWORKS, "_" and DIGIT MUST BEGIN WITH A LETTER '''
+
     if buffer[curr_index] not in ALPHA:
         raise RuntimeError("First character must be a letter")
     token = ""
@@ -164,9 +156,7 @@ def readAlpha(buffer: list, curr_index: int):
     return token, curr_index, kindOfToken(token)
 
 def ignoreWhiteSpace(buffer: list, curr_index: int):
-    '''
-    Ignores whitespace
-    '''
+    ''' Ignores whitespace '''
     while curr_index < len(buffer) and buffer[curr_index] in WHITESPACE:
         curr_index += 1
     return curr_index
@@ -182,11 +172,9 @@ def ignoreComments(buffer: list, curr_index: int):
 
 
 def kindOfToken(token:str):
-    '''
-    Returns the token kind
-    '''
+    ''' Returns the token kind '''
     if token in KEY_WORDS or token in OPERATORS or token in OTHER:
-        return token
+        return ""
     if token.isdigit():
         return "NUM"
     return "ID"
