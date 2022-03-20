@@ -44,8 +44,9 @@ class Tokenizer:
         # Move curr_index based on comments and whitespace & chech buffer
         self.__moveBuffer__()
 
-        if len(self.buffer) == 0: # End of Text has been reached
-            return self.kindToken
+        if len(self.buffer) == 0 or self.curr_index >= len(self.buffer): # End of Text has been reached
+            self.kindToken="End-of-text"
+            return
             
         if self.buffer[self.curr_index] in ALPHA:
             self.positionToken = self.curr_index+1
