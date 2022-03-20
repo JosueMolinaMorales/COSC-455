@@ -2,7 +2,7 @@ OPERATORS = ["<", "=<", "=", "!=", ">=", ">", "+", "-", "*", "/"]
 OTHER = ["(", ")", ":", ";", ":="]
 KEY_WORDS = ["program", "end", "bool", "int", "while", "do", "od", "print", "false", "true", "not", "and", "or", "if", "fi", "then", "else"]
 ALPHA = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
-WHITESPACE = [" ", "\n"]
+WHITESPACE = [" ", "\n", chr(9)] # char(9) is a horizontal tab
 DIGITS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
 
 class Tokenizer:
@@ -38,14 +38,11 @@ class Tokenizer:
         '''
         Gets the next token in the buffer
         '''
-        self.__reset__() # Reset token and kind
+        # Reset token and kind
+        self.__reset__()
 
-        # Check to see if there is whitespace or a comment
-        self.curr_index = ignoreWhiteSpace(self.buffer, self.curr_index)
-        self.curr_index = ignoreComments(self.buffer, self.curr_index)
-        
-        # Check to see if the buffer is at the end
-        self.__checkBuffer__()
+        # Move curr_index based on comments and whitespace & chech buffer
+        self.__moveBuffer__()
 
         if len(self.buffer) == 0: # End of Text has been reached
             return self.kindToken
@@ -65,6 +62,14 @@ class Tokenizer:
             raise RuntimeError(f"ERROR: Invalid token at Line: {self.lineCount}, Position: {self.positionToken}, Character: {self.buffer[self.curr_index]}")
 
 
+    def __moveBuffer__(self):
+        '''
+        Moves the buffer based on if there is whitespace or a comment
+        '''
+        self.curr_index = ignoreWhiteSpace(self.buffer, self.curr_index)
+        self.curr_index = ignoreComments(self.buffer, self.curr_index)
+        self.__checkBuffer__()
+
     def __checkBuffer__(self):
         '''
         Ensures that the buffer can still be read
@@ -81,6 +86,8 @@ class Tokenizer:
         Reads the next line in the text file and creates a buffer for the object to read
         '''
         line = self.file.readline()
+        while line == "\n": # ignore all empty lines
+            line = self.file.readline()
         if line == "": # readline() returns '' when the EOF has been reached
             self.kindToken = "End-of-text"
         
@@ -98,6 +105,7 @@ class Tokenizer:
         '''
         self.token = ""
         self.kindToken = ""
+        
     
     
 def isComment(buffer: list, curr_index: int):
@@ -150,9 +158,11 @@ def readAlpha(buffer: list, curr_index: int):
     if buffer[curr_index] not in ALPHA:
         raise RuntimeError("First character must be a letter")
     token = ""
-    while curr_index < len(buffer) and buffer[curr_index] in ALPHA or buffer[curr_index] in DIGITS or buffer[curr_index] == "_" :
+
+    while (curr_index < len(buffer)) and (buffer[curr_index] in ALPHA or buffer[curr_index] in DIGITS or buffer[curr_index] == "_") :
         token += buffer[curr_index]
         curr_index += 1
+
     return token, curr_index, kindOfToken(token)
 
 def ignoreWhiteSpace(buffer: list, curr_index: int):
