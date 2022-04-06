@@ -30,7 +30,7 @@ def match(symbol: str):
         lex.next()
     else:
         value = lex.value() if lex.value != "" else lex.kind()
-        raise RuntimeError(f"ERROR: At Position {lex.position()}. Expected {symbol}, Saw {value}")
+        raise RuntimeError(f"ERROR: At Position {lex.position()}. {value} was seen, expected {symbol}")
 
 def Program():
     match('program')
