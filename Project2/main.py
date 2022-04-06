@@ -1,17 +1,29 @@
 #! /usr/bin/env python3
 from ast import Assert
 from LexAnalyzer import Tokenizer
+import os
 
-FILE = "./examples/euclid.txt"
+FILE = "./examples/ab.txt"
 lex = Tokenizer(FILE)
 
 def main():
-    try:
-        lex.next()
-        Program()
-        print(f"Sucessfully parsed {FILE}")
-    except Exception as e:
-        print(e)
+    global lex
+    # try:
+    #     lex.next()
+    #     Program()
+    #     print(f"Sucessfully parsed {FILE}")
+    # except Exception as e:
+        # print(e)
+    for file in os.listdir("./examples"):
+        #print(f"File being parsed is: {file}")
+        lex = Tokenizer("./examples/"+file)
+        try:
+            lex.next()
+            Program()
+            print(f"Sucessfully parsed {file}")
+        except Exception as e:
+            print(e)
+        
 
 def match(symbol: str):
     if lex.kind() == symbol:
