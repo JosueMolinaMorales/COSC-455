@@ -1,0 +1,24 @@
+/* Text File incase the .docx is not allowed */
+
+Programming Languages Project 1
+Josue Molina Morales
+COSC 455 – 002 
+Generating an integer
+
+In my implementation of the lexical analyzer, the next() function will read the next token in the file. 
+It starts off by reading any white space and making sure the end of the text has not been reached. 
+The first character of the next token is read and if it is a digit, the next() function calls the readDigits() function. 
+In the readDigits() function, a token is starting to be built by putting the character it just read into a string variable named token. 
+The function will continue adding a character to this new token as long as two conditions are true: the end of the file has not been reached, and the current character is a digit. 
+Once either one of these conditions are false, the function returns the token, index, and kind. Where this is stored for use with the position() and kind() functions.
+
+Block of code that handles this function:
+
+    def readDigits(buffer: list, curr_index: int):
+        ''' Read Digits '''
+        token = buffer[curr_index]
+        curr_index += 1
+        while curr_index < len(buffer) and buffer[curr_index] in DIGITS:
+            token += buffer[curr_index]
+            curr_index += 1
+        return token, curr_index, kindOfToken(token)
