@@ -15,12 +15,12 @@ def main():
     # except Exception as e:
         # print(e)
     for file in os.listdir("./examples"):
-        #print(f"File being parsed is: {file}")
+        print(f"File being parsed is: {file}")
         lex = Tokenizer("./examples/"+file)
         try:
             lex.next()
             Program()
-            print(f"Sucessfully parsed {file}")
+            print(f"Sucessfully parsed {file}\n")
         except Exception as e:
             print(e)
         
@@ -75,7 +75,7 @@ def Statement():
 
 def Expected(setSymbols):
     if lex.kind() not in setSymbols:
-        raise RuntimeError(f"ERROR: At Position {lex.position}. {lex.value()} was seen. Expected {setSymbols}")
+        raise RuntimeError(f"ERROR: At Position {lex.position()}. {lex.value()} was seen. Expected {setSymbols}")
 
 def AssignmentStatement():
     match("ID")
