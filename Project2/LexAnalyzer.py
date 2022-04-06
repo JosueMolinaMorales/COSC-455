@@ -4,6 +4,7 @@ KEY_WORDS = ["program", "end", "bool", "int", "while", "do", "od", "print", "fal
 ALPHA = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
 WHITESPACE = [" ", "\n", chr(9)] # char(9) is a horizontal tab
 DIGITS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
+EOF = "End-of-text"
 
 class Tokenizer:
     def __init__(self, fileName: str):
@@ -61,6 +62,8 @@ class Tokenizer:
             self.token, self.curr_index, self.kindToken = readDigits(self.buffer, self.curr_index)
         else:
             raise RuntimeError(f"ERROR: Invalid token at Line: {self.lineCount}, Position: {self.positionToken}, Character: {self.buffer[self.curr_index]}")
+        print("Next has been called and the value of the token is: " + self.token)
+        print("The kind of the value is: " + self.kindToken)
 
 
     def __moveBuffer__(self):
@@ -77,7 +80,7 @@ class Tokenizer:
         If the index is >= than the buffer length, get the next line in the buffer
         Ignore all leading whitespace (if any)
         '''
-        if self.curr_index >= len(self.buffer):
+        while self.curr_index >= len(self.buffer) and self.kindToken != EOF:
             self.buffer = self.__getBuffer__()
             self.curr_index = ignoreWhiteSpace(self.buffer, self.curr_index)
         
@@ -90,7 +93,7 @@ class Tokenizer:
         while line == "\n": # ignore all empty lines
             line = self.file.readline()
         if line == "": # readline() returns '' when the EOF has been reached
-            self.kindToken = "End-of-text"
+            self.kindToken = EOF
         
         self.curr_index = 0
         self.positionToken = self.curr_index+1
@@ -185,7 +188,7 @@ def ignoreComments(buffer: list, curr_index: int):
 def kindOfToken(token:str):
     ''' Returns the token kind '''
     if token in KEY_WORDS or token in OPERATORS or token in OTHER:
-        return ""
+        return token
     if token.isdigit():
         return "NUM"
     return "ID"

@@ -4,7 +4,7 @@ main program:
     Program() # program handles the subtree for the non-terminal symbol Program
     Print("Successful parsing")
 
-def Program():
+def Program(): 
     match('Program') # the first thing expected to see is 'Program'
     match(Identifier)
     match(':')
