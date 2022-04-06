@@ -62,9 +62,6 @@ class Tokenizer:
             self.token, self.curr_index, self.kindToken = readDigits(self.buffer, self.curr_index)
         else:
             raise RuntimeError(f"ERROR: Invalid token at Line: {self.lineCount}, Position: {self.positionToken}, Character: {self.buffer[self.curr_index]}")
-        print("Next has been called and the value of the token is: " + self.token)
-        print("The kind of the value is: " + self.kindToken)
-
 
     def __moveBuffer__(self):
         '''
@@ -91,6 +88,7 @@ class Tokenizer:
         '''
         line = self.file.readline()
         while line == "\n": # ignore all empty lines
+            self.lineCount += 1
             line = self.file.readline()
         if line == "": # readline() returns '' when the EOF has been reached
             self.kindToken = EOF

@@ -14,7 +14,6 @@ def main():
         print(e)
 
 def match(symbol: str):
-    print("In match(), lex.kind() is: " + lex.kind() + " and symbol is: " + symbol)
     if lex.kind() == symbol:
         lex.next()
     else:
