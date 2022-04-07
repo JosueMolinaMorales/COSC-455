@@ -29,7 +29,7 @@ def match(symbol: str):
     if lex.kind() == symbol:
         lex.next()
     else:
-        value = lex.value() if lex.value != "" else lex.kind()
+        value = lex.value() if lex.value() != "" else lex.kind()
         raise RuntimeError(f"ERROR: At Position {lex.position()}. {value} was seen, expected {symbol}")
 
 def Program():
