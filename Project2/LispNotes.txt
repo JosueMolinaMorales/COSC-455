@@ -1,0 +1,57 @@
+Lisp Expression:
+    An expression is either an atom or a list of expressions
+
+What are atoms? Atoms: Single character symbols, like + 
+                        multi character character symbols like foo
+                        Strings of characters between double quotations
+                        numbers
+A list: Begins with ( and is zero or more expressions separated by whitespace and enclosed by )
+    ex: (), (foo), (foo, (foo))
+
+When data and code are written in lisp, they are represented by one datastructure --> List
+
+(a, b, c) a is the head of the list. the tail of a list are the remaining members: (b, c)
+(*, 2, 3) can be interpreted as * being a function and 2, 3 are operands and it returns 6
+'(*, 2, 3) specifies that the list is data
+
+Keywords 
+atom --> Return true if the operand is an atom
+eq ---> equality checks to see if two atoms are equal cannot check to see if two lists are equal
+car --> Head of list
+cdr --> Tail of list
+cons --> construct a lit
+cond --> Conditional, the first condition to evaulate to true will return that first value
+null --> Checks to see if a list is empty
+and --> takes two list --> (and (atom 3) (atom 6))
+
+
+(cond
+    ( (atom 4) 'zero)
+    ( (eq 'a 'a) 'first)
+    ( (atom 'a) 'second)
+) ---> Returns zero
+
+function: ;; (double 5)
+
+How to write a function:
+    (defun double (x) 
+        (* x 2)
+    )
+
+Write a function that takes a list and checks to see if all the members of the list are atoms
+(defun lat (list)
+    (cond
+        ( (null list) t)
+        ( atom (car list) (lat (cdr list)))
+        ( t () ) ;; if list is not empty and head is not an atom
+    )
+)
+
+Write a function that takes in two lists and return true if they are the same
+(defun eqlist (l1 l2)
+    (cond
+        ( (and (null l1) (null l2)) t)
+        ( (eq (car l1) (car l2)) (eqlist (cdr l1) (cdr l2) )
+        ( t nil )
+    )
+)

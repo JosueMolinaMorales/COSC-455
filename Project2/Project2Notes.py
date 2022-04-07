@@ -134,6 +134,27 @@ def term():
         tree2 := factor()
         tree := node(op, tree, tree2)
     return tree;
+
+ERROR DIAGNOSITCS
+The follow of Program? --> "End-of-text"
+main program():
+    next():
+    Program({'End-of-text'}) ---> The members of follow are sent
+
+def Program(follow):
+    match(program)
+    match(ID)
+    match(:)
+    body({"end"}) --> Because Follow of BODY is End
+    match(end)
+
+def Declarations(follow):
+    Declaration(follow UNION {"bool", "int"})
+    while curr_symbole is bool or int:
+        Declaration(follow UNION {"bool", "int"})
+    exptected(follow UNION {"bool", "int"})
+
+Every function that contain follow will contain exptected()
 '''
 
 ''' Example program
