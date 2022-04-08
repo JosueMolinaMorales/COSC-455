@@ -1,7 +1,15 @@
 #! /usr/bin/env python3
 from ast import Assert
 from LexAnalyzer import Tokenizer
+from AbstractSyntaxTree import AST, Node
 import os
+
+DATA_TYPES = ['bool', 'int']
+RELATIONAL_OP = ["<", "=<", "=", "!=", ">=", ">"]
+ADDITIVE_OP = ["+", "-", "or"]
+MULTIPLATIVE_OP = ['*', '/', 'and']
+UNARY_OP = ['-', 'not']
+BOOLEAN_LITERALS = ['false', 'true']
 
 FILE = "./examples/ab.txt"
 lex = Tokenizer(FILE)
@@ -19,18 +27,20 @@ def main():
         lex = Tokenizer("./examples/"+file)
         try:
             lex.next()
-            Program()
+            AST = Program()
             print(f"Sucessfully parsed {file}\n")
         except Exception as e:
             print(e)
         
 
 def match(symbol: str):
-    if lex.kind() == symbol:
-        lex.next()
-    else:
-        value = lex.value() if lex.value() != "" else lex.kind()
-        raise RuntimeError(f"ERROR: At Position {lex.position()}. {value} was seen, expected {symbol}")
+    if lex.kind() != symbol:
+        raise RuntimeError(f"ERROR: At Position {lex.position()}. {lex.kind()} was seen, expected {symbol}")
+
+    value = lex.kind() if lex.kind() != 'ID' else lex.value()
+    lex.next()
+    return Node(value=value)
+    
 
 def Program():
     match('program')
@@ -40,17 +50,17 @@ def Program():
     match('end')
 
 def Body():
-    if lex.kind() in ('bool', 'int'):
+    if lex.kind() in DATA_TYPES:
         Declarations()
     Statements()
 
 def Declarations():
     Declaration()
-    while lex.kind() in ('bool', 'int'):
+    while lex.kind() in DATA_TYPES:
         Declaration()
 
 def Declaration():
-    Assert(lex.kind() in ('bool', 'int'))
+    Assert(lex.kind() in DATA_TYPES)
     lex.next()
     match('ID')
     match(';')
@@ -105,25 +115,31 @@ def PrintStatement():
 
 def Expression():
     SimpleExpression()
-    if lex.kind() in ("<", "=<", "=", "!=", ">=", ">"):
+    if lex.kind() in RELATIONAL_OP:
         lex.next()
         SimpleExpression()
 
 def SimpleExpression():
     Term()
-    while lex.kind() in ('+', '-', 'or'):
+    while lex.kind() in ADDITIVE_OP:
         lex.next()
         Term()
 
 def Term():
-    Factor()
-    while lex.kind() in ('*', '/', 'and'):
+    tree = Factor()
+    while lex.kind() in MULTIPLATIVE_OP:
+        op = lex.kind()
         lex.next()
-        Factor()
+        subTree = Factor()
+        tree.addChildren()
 
-def Factor():
-    if lex.kind() in ('-', 'not'):
+def Factor() -> Node:
+    '''
+    
+    '''
+    if lex.kind() in UNARY_OP:
         lex.next()
+
     if lex.kind() in ('true', 'false', 'NUM'):
         Literal()
     elif lex.kind() == 'ID':
@@ -143,7 +159,7 @@ def Literal():
         BooleanLiteral()
 
 def BooleanLiteral():
-    assert( lex.kind() in ('true', 'false'))
+    assert( lex.kind() in BOOLEAN_LITERALS)
     lex.next()
 
 
