@@ -3,8 +3,8 @@ from ast import Assert
 from LexAnalyzer import Tokenizer
 import os
 
-FILE = "./examples/ab.txt"
-lex = Tokenizer(FILE)
+FILE = ""
+lex: Tokenizer
 
 def main():
     global lex
@@ -13,7 +13,7 @@ def main():
     #     Program()
     #     print(f"Sucessfully parsed {FILE}")
     # except Exception as e:
-        # print(e)
+        # print(e)    
     for file in os.listdir("./examples"):
         print(f"File being parsed is: {file}")
         lex = Tokenizer("./examples/"+file)
@@ -24,13 +24,19 @@ def main():
         except Exception as e:
             print(e)
         
+def genErr(symbol) -> str:
+    errLine = lex.curr_line
+    errPos = lex.position()[1]-1 # get the position of the error
+    err = f"ERROR: At Position {lex.position()}. {lex.value()} was seen. Expected {symbol}\n" + \
+            f"{errLine}" + \
+                " "*errPos+"^"
+    return err
 
 def match(symbol: str):
     if lex.kind() == symbol:
         lex.next()
     else:
-        value = lex.value() if lex.value() != "" else lex.kind()
-        raise RuntimeError(f"ERROR: At Position {lex.position()}. {value} was seen, expected {symbol}")
+        raise RuntimeError(genErr(symbol))
 
 def Program():
     match('program')
@@ -75,7 +81,7 @@ def Statement():
 
 def Expected(setSymbols):
     if lex.kind() not in setSymbols:
-        raise RuntimeError(f"ERROR: At Position {lex.position()}. {lex.value()} was seen. Expected {setSymbols}")
+        raise RuntimeError(genErr(setSymbols))
 
 def AssignmentStatement():
     match("ID")

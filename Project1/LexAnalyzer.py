@@ -89,6 +89,9 @@ class Tokenizer:
         line = self.file.readline()
         while line == "\n": # ignore all empty lines
             line = self.file.readline()
+        while line.strip()[:2] == "//":
+            self.lineCount += 1
+            line = self.file.readline()
         if line == "": # readline() returns '' when the EOF has been reached
             self.kindToken = EOF
         

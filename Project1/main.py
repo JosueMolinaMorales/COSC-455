@@ -3,7 +3,7 @@ from LexAnalyzer import Tokenizer
 def main():
     filename = input("Enter the file name to be tokenized: ")
     try:
-        lex = Tokenizer(".\examples\euclid.txt")
+        lex = Tokenizer(filename)
         lex.next()
         while lex.kind() != "End-of-text":
             print(lex.position(), lex.kind(), lex.value()) if lex.kind() != "" else print(lex.position(), lex.value())
