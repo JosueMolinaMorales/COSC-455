@@ -15,6 +15,7 @@ class Tokenizer:
         self.file = open(fileName) # Creates the file object for the object
         self.buffer = self.__getBuffer__() # Generates the buffer
         self.curr_index = 0 # Sets the current index to 0
+        self.curr_line = []
     
     def kind(self):
         '''
@@ -80,6 +81,7 @@ class Tokenizer:
         while self.curr_index >= len(self.buffer) and self.kindToken != EOF:
             self.buffer = self.__getBuffer__()
             self.curr_index = ignoreWhiteSpace(self.buffer, self.curr_index)
+            self.curr_index = ignoreComments(self.buffer, self.curr_index)
         
 
     def __getBuffer__(self):
@@ -98,7 +100,8 @@ class Tokenizer:
 
         self.lineCount += 1
         lineArr = [char for char in line] # Generate buffer
-
+        self.curr_line = line
+        
         return lineArr
 
     def __reset__(self):
