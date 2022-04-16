@@ -69,6 +69,7 @@ class Tokenizer:
         '''
         self.curr_index = ignoreWhiteSpace(self.buffer, self.curr_index)
         self.curr_index = ignoreComments(self.buffer, self.curr_index)
+        #print(self.curr_index)
         self.__checkBuffer__()
 
     def __checkBuffer__(self):
@@ -80,6 +81,7 @@ class Tokenizer:
         while self.curr_index >= len(self.buffer) and self.kindToken != EOF:
             self.buffer = self.__getBuffer__()
             self.curr_index = ignoreWhiteSpace(self.buffer, self.curr_index)
+            self.curr_index = ignoreComments(self.buffer, self.curr_index)
         
 
     def __getBuffer__(self):
@@ -97,7 +99,7 @@ class Tokenizer:
 
         self.lineCount += 1
         lineArr = [char for char in line] # Generate buffer
-
+        #print(f"buffer: {lineArr}")
         return lineArr
 
     def __reset__(self):
@@ -111,6 +113,7 @@ class Tokenizer:
     
 def isComment(buffer: list, curr_index: int):
     ''' Checks to see if the first / seen is followed by another / to make a comment'''
+    #print(f"in iscomment: value: {curr_index < len(buffer) and buffer[curr_index] == '/' and curr_index+1 < len(buffer) and buffer[curr_index+1] == '/'}")
     return curr_index < len(buffer) and buffer[curr_index] == "/" and curr_index+1 < len(buffer) and buffer[curr_index+1] == "/"
 
 def checkExclamationPoint(buffer: list, curr_index: int):
@@ -176,6 +179,7 @@ def ignoreComments(buffer: list, curr_index: int):
     '''
     Checks to see if the character at curr_index and curr_index+1 are '//' if so, ignore the rest of the line
     '''
+    #print(buffer)
     if isComment(buffer, curr_index):
         return len(buffer)
     else:

@@ -55,3 +55,6 @@ Write a function that takes in two lists and return true if they are the same
         ( t nil )
     )
 )
+
+
+4/12 notes

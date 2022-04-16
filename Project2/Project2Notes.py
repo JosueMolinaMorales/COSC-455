@@ -150,11 +150,32 @@ def Program(follow):
 
 def Declarations(follow):
     Declaration(follow UNION {"bool", "int"})
-    while curr_symbole is bool or int:
+    while curr_symbole is bool or int:          # Which get expected() ? While 
         Declaration(follow UNION {"bool", "int"})
     exptected(follow UNION {"bool", "int"})
 
 Every function that contain follow will contain exptected()
+
+
+
+AST NOTES:
+Program if:
+    if 3<3 then:
+        print false
+end
+
+Capture the essence of computation --> Done care about program and the name of the program anc colon
+    What is important? If, condition, and body
+            if
+        /       \
+    LT          print
+/       \       
+3       3
+
+
+
+When computing FOLLOW look locally becuase ex; BODY is called multiple places but have different follows after each of them
+
 '''
 
 ''' Example program

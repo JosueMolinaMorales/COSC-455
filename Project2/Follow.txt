@@ -1,0 +1,46 @@
+Follow of:
+    Program = { 'end-of-text' }
+
+    Program_Body = { "end" }
+    ConditionalStatement_Body = { 'fi', 'else' }
+    IterativeStatement_Body = { 'od' }
+
+    Declarations = { IDENTIFIER, 'if', 'while', 'print' }
+
+    Declaration = { FOLLOW(Declarations), 'bool', 'int' }
+
+    Statements = { FOLLOW(Body) }
+
+    Statement = { FOLLOW(Statements), ';' }
+
+    AssignmentStatement = { FOLLOW(Statement) }
+
+    ConditionalStatement = { FOLLOW(Statement) }
+
+    IterativeStatement = { FOLLOW(Statement) }
+
+    PrintStatement = { FOLLOW(Statement) }
+
+    Expression = { FOLLOW(AssignmentStatement), 'then', 'do', FOLLOW(PrintStatement) } 
+
+    RelationalOperator = { '-', 'not', BooleanLiteral, IntegerLiteral, ID, '(' }
+
+    SimpleExpression = { FOLLOW(Expression), '<', '=<', '=', '!=', '>=', '>' }
+
+    AdditiveOperator = { '-', 'not', BooleanLiteral, IntegerLiteral, '(' }
+
+    Term = { FOLLOW(SimpleExpression), '+', '-', 'or' }
+
+    MultiplicativeOperator = { '-', 'not', BooleanLiteral, IntegerLiteral, '(' }
+
+    Factor = { FOLLOW(Term), '*', '/', 'and' }
+
+    UnaryOperator = { BooleanLiteral, IntegerLiteral, '(' }
+
+    Literal = { FOLLOW(Factor) }
+
+    BooleanLiteral = { FOLLOW(Literal) }
+
+    IntegerLiteral = { FOLLOW(Literal) }
+
+    
