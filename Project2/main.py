@@ -3,34 +3,40 @@ from ast import Assert
 from LexAnalyzer import Tokenizer
 import os
 
-FILE = ""
+file = ""
 lex: Tokenizer
 
 def main():
-    global lex
-    # try:
-    #     lex.next()
-    #     Program()
-    #     print(f"Sucessfully parsed {FILE}")
-    # except Exception as e:
-        # print(e)    
-    for file in os.listdir("./examples"):
-        print(f"File being parsed is: {file}")
-        lex = Tokenizer("./examples/"+file)
-        try:
-            lex.next()
-            Program()
-            print(f"Sucessfully parsed {file}\n")
-        except Exception as e:
-            print(e)
+    global lex, file
+    file = "./examples/testing.txt"
+    lex = Tokenizer(file)
+    try:
+        lex.next()
+        Program({'End-of-text'})
+        print(f"Sucessfully parsed {file}")
+    except Exception as e:
+        print(e)    
+    # for file in os.listdir("./examples"):
+    #     print(f"File being parsed is: {file}")
+    #     lex = Tokenizer("./examples/"+file)
+    #     try:
+    #         lex.next()
+    #         Program({'End-of-text'})
+    #         print(f"Sucessfully parsed {file}\n")
+    #     except Exception as e:
+    #         print(e)
         
 def genErr(symbol) -> str:
     errLine = lex.curr_line
     errPos = lex.position()[1]-1 # get the position of the error
-    err = f"ERROR: At Position {lex.position()}. {lex.value()} was seen. Expected {symbol}\n" + \
+    err = f"{file} >>> PARSING ERROR: At Position {lex.position()}. {lex.value()} was seen. Expected {symbol}\n" + \
             f"{errLine}" + \
                 " "*errPos+"^"
     return err
+
+def Expected(setSymbols):
+    if lex.kind() not in setSymbols:
+        raise RuntimeError(genErr(setSymbols))
 
 def match(symbol: str):
     if lex.kind() == symbol:
@@ -38,119 +44,132 @@ def match(symbol: str):
     else:
         raise RuntimeError(genErr(symbol))
 
-def Program():
+def Program(follow:set):
     match('program')
     match('ID')
     match(':')
-    Body()
+    Body({'end'})
     match('end')
+    Expected(follow)
 
-def Body():
+def Body(follow:set):
+    print(follow)
+    print('in body')
     if lex.kind() in ('bool', 'int'):
-        Declarations()
-    Statements()
+        Declarations({'ID', 'if', 'while', 'print'})
+    Statements(follow)
+    Expected(follow)
 
-def Declarations():
-    Declaration()
+def Declarations(follow:set):
+    Declaration(follow.union({'bool', 'int'}))
     while lex.kind() in ('bool', 'int'):
-        Declaration()
+        Declaration(follow.union({'bool', 'int'}))
+    Expected(follow)
 
-def Declaration():
+def Declaration(follow:set):
     Assert(lex.kind() in ('bool', 'int'))
     lex.next()
     match('ID')
     match(';')
+    Expected(follow)
 
-def Statements():
-    Statement()
+def Statements(follow:set):
+    Statement(follow.union({';'}))
     while lex.kind() == ';':
         lex.next()
-        Statement()
+        Statement(follow.union({';'}))
+    Expected(follow)
 
-def Statement():
+def Statement(follow:set):
     if lex.kind() == 'ID': # the kind of curr_symbol is ID
-        AssignmentStatement()
+        AssignmentStatement(follow)
     elif lex.kind() == 'if':
-        ConditionalStatement()
+        ConditionalStatement(follow)
     elif lex.kind() == 'while':
-        IterativeStatement()
+        IterativeStatement(follow)
     elif lex.kind() == 'print':
-        PrintStatement()
+        PrintStatement(follow)
     else:
-        Expected(['ID', 'if', 'while', 'print'])
+        Expected({'ID', 'if', 'while', 'print'})
 
-def Expected(setSymbols):
-    if lex.kind() not in setSymbols:
-        raise RuntimeError(genErr(setSymbols))
-
-def AssignmentStatement():
+def AssignmentStatement(follow:set):
     match("ID")
     match(':=')
-    Expression()
+    Expression(follow)
+    Expected(follow)
 
-def ConditionalStatement():
+def ConditionalStatement(follow:set):
     match('if')
-    Expression()
+    Expression({ 'then' })
     match('then')
-    Body()
+    Body({ 'fi', 'else' })
     if lex.kind() == "else":
         lex.next()
-        Body()
+        Body({ 'fi' })
     match('fi')
+    Expected(follow)
 
-def IterativeStatement():
+def IterativeStatement(follow:set):
     match('while')
-    Expression()
+    Expression({ 'do' })
     match('do')
-    Body()
+    Body({ 'od' })
     match('od')
+    Expected(follow)
 
-def PrintStatement():
+def PrintStatement(follow:set):
     match('print')
-    Expression()
+    Expression(follow)
+    Expected(follow)
 
-def Expression():
-    SimpleExpression()
+def Expression(follow:set):
+    SimpleExpression(follow.union({ '<', '=<', '=', '!=', '>=', '>' }))
     if lex.kind() in ("<", "=<", "=", "!=", ">=", ">"):
         lex.next()
-        SimpleExpression()
+        Expected({ '-', 'not', 'NUM', 'ID', "(", 'true','false' }) # Follow of RelationalOperator
+        SimpleExpression(follow)
+    Expected(follow)
 
-def SimpleExpression():
-    Term()
+def SimpleExpression(follow:set):
+    Term(follow.union({ '+', '-', 'or' }))
     while lex.kind() in ('+', '-', 'or'):
         lex.next()
-        Term()
+        Term(follow.union({ '+', '-', 'or' }))
+    Expected(follow)
 
-def Term():
-    Factor()
+def Term(follow:set):
+    Factor(follow.union({ '*', '/', 'and' }))
     while lex.kind() in ('*', '/', 'and'):
         lex.next()
-        Factor()
+        Factor(follow.union({ '*', '/', 'and' }))
+    Expected(follow)
 
-def Factor():
+def Factor(follow:set):
     if lex.kind() in ('-', 'not'):
         lex.next()
     if lex.kind() in ('true', 'false', 'NUM'):
-        Literal()
+        Literal(follow)
     elif lex.kind() == 'ID':
         lex.next()
     elif lex.kind() == '(':
         lex.next()
-        Expression()
+        Expression({ ')' })
         match(')')
     else:
-        Expected(('true', 'false', 'NUM', 'ID', '('))
+        Expected({'true', 'false', 'NUM', 'ID', '('})
 
-def Literal():
+def Literal(follow:set):
     assert( lex.kind() in ('true', 'false', 'NUM'))
     if lex.kind() == 'NUM':
         lex.next()
     else:
-        BooleanLiteral()
+        BooleanLiteral(follow)
+    Expected(follow)
 
-def BooleanLiteral():
+def BooleanLiteral(follow:set):
     assert( lex.kind() in ('true', 'false'))
     lex.next()
+    Expected(follow)
 
 
 if __name__ == "__main__":

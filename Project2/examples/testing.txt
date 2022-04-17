@@ -1,0 +1,26 @@
+// 
+
+
+
+
+
+
+
+program helloThere:
+    int a; int b; int c;
+    bool tr; 
+    a := 4; b := 3;
+    tr := false;
+
+    if (tr) then
+        if a or b then
+            print (a)
+        fi;
+
+    while ( a ) do
+        print(b)
+    od;
+
+    print(a)
+    
+end
