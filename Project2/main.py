@@ -8,23 +8,24 @@ lex: Tokenizer
 
 def main():
     global lex, file
-    file = "./examples/testing.txt"
-    lex = Tokenizer(file)
-    try:
-        lex.next()
-        Program({'End-of-text'})
-        print(f"Sucessfully parsed {file}")
-    except Exception as e:
-        print(e)    
-    # for file in os.listdir("./examples"):
-    #     print(f"File being parsed is: {file}")
-    #     lex = Tokenizer("./examples/"+file)
-    #     try:
-    #         lex.next()
-    #         Program({'End-of-text'})
-    #         print(f"Sucessfully parsed {file}\n")
-    #     except Exception as e:
-    #         print(e)
+    # file = "./examples/testing.txt"
+    # lex = Tokenizer(file)
+    # try:
+    #     lex.next()
+    #     Program({'End-of-text'})
+    #     print(f"Sucessfully parsed {file}")
+    # except Exception as e:
+    #     print(e)    
+    for f in os.listdir("./errors"):
+        file = "./errors/"+f
+        print(f"File being parsed is: {file}")
+        lex = Tokenizer(file)
+        try:
+            lex.next()
+            Program({'End-of-text'})
+            print(f"Sucessfully parsed {file}\n")
+        except Exception as e:
+            print(e)
         
 def genErr(symbol) -> str:
     errLine = lex.curr_line
@@ -53,8 +54,6 @@ def Program(follow:set):
     Expected(follow)
 
 def Body(follow:set):
-    print(follow)
-    print('in body')
     if lex.kind() in ('bool', 'int'):
         Declarations({'ID', 'if', 'while', 'print'})
     Statements(follow)
