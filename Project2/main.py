@@ -8,24 +8,18 @@ lex: Tokenizer
 
 def main():
     global lex, file
-    # file = "./examples/testing.txt"
-    # lex = Tokenizer(file)
-    # try:
-    #     lex.next()
-    #     Program({'End-of-text'})
-    #     print(f"Sucessfully parsed {file}")
-    # except Exception as e:
-    #     print(e)    
-    for f in os.listdir("./errors"):
-        file = "./errors/"+f
-        print(f"File being parsed is: {file}")
-        lex = Tokenizer(file)
-        try:
-            lex.next()
-            Program({'End-of-text'})
-            print(f"Sucessfully parsed {file}\n")
-        except Exception as e:
-            print(e)
+    file = input("Enter the file name >>>> ")
+    if not os.path.exists(file):
+        print(f"ERROR {file} does not exist")
+    
+    print(f"File being parsed is: {file}")
+    lex = Tokenizer(file)
+    try:
+        lex.next()
+        Program({'End-of-text'})
+        print(f"Sucessfully parsed {file}\n")
+    except Exception as e:
+        print(e)
         
 def genErr(symbol) -> str:
     errLine = lex.curr_line
